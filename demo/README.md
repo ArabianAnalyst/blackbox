@@ -5,4 +5,4 @@ A single self-contained HTML page. No build step, no dependencies, no network ca
 - **Live:** [arabiananalyst.github.io/blackbox/demo](https://arabiananalyst.github.io/blackbox/demo/)
 - **Or open it locally:** open [`index.html`](index.html) in any browser.
 
-Record actions, then click any cost or action to alter it. The chain breaks at that record, everything after it goes untrusted, and `verify()` names the exact point. Click again to restore.
+Record actions, click any cost or action to alter one, then press Verify chain. The edit stays hidden until you run the check, exactly like a real log. `verify()` then breaks at that record, dims everything after it, and names the exact point. Click the value again to restore.

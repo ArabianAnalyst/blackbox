@@ -74,6 +74,8 @@ body{min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;padding
 .readout .verdict{font-family:"Plex Mono",monospace;font-size:14px;letter-spacing:.04em;font-weight:500}
 .readout[data-state="ok"] .verdict{color:var(--verified)}
 .readout[data-state="broken"] .verdict{color:var(--broken)}
+.readout[data-state="pending"] .led{background:var(--signal);box-shadow:0 0 0 4px color-mix(in srgb,var(--signal) 22%,transparent)}
+.readout[data-state="pending"] .verdict{color:var(--signal)}
 .readout .sub{color:var(--muted);font-size:12.5px;margin-left:auto;font-family:"Plex Mono",monospace}
 
 /* toolbar */
@@ -95,6 +97,7 @@ body{min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;padding
   opacity:0;transform:translateY(6px);animation:rise .32s cubic-bezier(.2,.7,.2,1) forwards}
 @keyframes rise{to{opacity:1;transform:none}}
 .rec.verified{border-left-color:var(--verified)}
+.rec.pending{border-left-color:var(--muted)}
 .rec.broken{border-left-color:var(--broken);background:color-mix(in srgb,var(--broken) 9%, var(--panel))}
 .rec.after{opacity:.5}
 .rec-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -146,9 +149,10 @@ body{min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased;padding
   </div>
 
   <div class="bar">
-    <button class="btn btn-primary" id="record" type="button">&#9656; Record an action</button>
+    <button class="btn btn-primary" id="verify" type="button">&#10003; Verify chain</button>
+    <button class="btn btn-ghost" id="record" type="button">&#9656; Record an action</button>
     <button class="btn btn-ghost" id="reset" type="button">Reset</button>
-    <span class="hint">click a <b>value</b> to tamper with it</span>
+    <span class="hint">click a <b>value</b> to tamper, then verify</span>
   </div>
 
   <div class="ledger" id="ledger"></div>
@@ -209,6 +213,9 @@ const POOL = [
 let chain = [];
 let seq = 0;
 let poolIx = 0;
+// null = the chain changed since it was last checked (pending). Otherwise holds
+// the last verifyChain() result. Only a Verify chain press sets it.
+let verifyResult = null;
 
 function short(h){ return h.slice(0,10) + "\u2026"; }
 
@@ -229,75 +236,96 @@ async function addRecord(tpl){
   rec._origAction = tpl.action;
   rec._origCost = tpl.cost;
   rec._alt = false;
+  rec._altField = null;
   chain.push(rec);
 }
 
-async function render(){
+// Pending means "changed, not yet checked": the altered value still shows red
+// (that is your edit), but the break itself stays hidden until Verify runs.
+function stateClass(i){
+  if (verifyResult === null) return "pending";
+  if (verifyResult.ok) return "verified";
+  if (i < verifyResult.brokenAt) return "verified";
+  if (i === verifyResult.brokenAt) return "broken";
+  return "after";
+}
+
+function render(){
   const led = document.getElementById("ledger");
-  const res = await verifyChain(chain);
   led.innerHTML = "";
   if (!chain.length){
     led.innerHTML = '<div class="empty">no records yet, hit "record an action"</div>';
   }
   chain.forEach((rec, i) => {
-    let cls = "rec";
-    if (res.ok) cls += " verified";
-    else if (i < res.brokenAt) cls += " verified";
-    else if (i === res.brokenAt) cls += " broken";
-    else cls += " after";
-
     const el = document.createElement("div");
-    el.className = cls;
+    el.className = "rec " + stateClass(i);
     el.style.animationDelay = (i * 18) + "ms";
 
-    const altClass = rec._alt ? " altered" : "";
+    const actAlt = (rec._alt && rec._altField === "action") ? " altered" : "";
+    const costAlt = (rec._alt && rec._altField === "cost") ? " altered" : "";
     const costTxt = rec.cost ? ("$" + rec.cost.toFixed(2)) : "$0.00";
+    const showBreak = verifyResult && !verifyResult.ok && i === verifyResult.brokenAt;
     el.innerHTML =
       '<div class="rec-head">' +
         '<span class="seq">' + rec.id + '</span>' +
-        '<span class="action tamperable' + altClass + '" data-tamper="action" data-i="' + i + '">' + rec.action + '</span>' +
+        '<span class="action tamperable' + actAlt + '" data-tamper="action" data-i="' + i + '">' + rec.action + '</span>' +
         '<span class="chip ' + rec.outcome + '">' + rec.outcome + '</span>' +
         '<span class="meta">' +
           '<span>' + rec.latencyMs + 'ms</span>' +
-          '<span class="cost tamperable' + altClass + '" data-tamper="cost" data-i="' + i + '">' + costTxt + '</span>' +
+          '<span class="cost tamperable' + costAlt + '" data-tamper="cost" data-i="' + i + '">' + costTxt + '</span>' +
         '</span>' +
       '</div>' +
       '<div class="hashes">' +
         '<span><span class="link">prev</span> <span class="arrow">\u21B0</span> ' + short(rec.prevHash) + '</span>' +
         '<span><span class="link">hash</span>      <span class="h">' + short(rec.hash) + '</span></span>' +
       '</div>' +
-      (i === res.brokenAt && !res.ok ? '<div class="break-flag">chain broken here \u00B7 verify() \u2192 { ok:false, brokenAt:"' + rec.id + '" }</div>' : "");
+      (showBreak ? '<div class="break-flag">chain broken here \u00B7 verify() \u2192 { ok:false, brokenAt:"' + rec.id + '" }</div>' : "");
     led.appendChild(el);
   });
 
   const ro = document.getElementById("readout");
   const verdict = document.getElementById("verdict");
   const sub = document.getElementById("sub");
-  if (res.ok){
+  if (verifyResult === null){
+    ro.dataset.state = "pending";
+    verdict.textContent = "NOT VERIFIED";
+    sub.textContent = chain.length
+      ? "chain changed since last check \u00B7 press Verify chain"
+      : "no records yet";
+  } else if (verifyResult.ok){
     ro.dataset.state = "ok";
     verdict.textContent = "VERIFIED";
     sub.textContent = "chain intact \u00B7 " + chain.length + " record" + (chain.length===1?"":"s");
   } else {
     ro.dataset.state = "broken";
-    verdict.textContent = "BROKEN AT " + chain[res.brokenAt].id;
-    sub.textContent = res.reason + " \u00B7 nothing past it can be trusted";
+    verdict.textContent = "BROKEN AT " + chain[verifyResult.brokenAt].id;
+    sub.textContent = verifyResult.reason + " \u00B7 nothing past it can be trusted";
   }
 }
 
+async function runVerify(){
+  verifyResult = await verifyChain(chain);
+  render();
+}
+
 // tamper: toggle a field between its original and an altered value. Does NOT
-// recompute the record's stored hash , exactly what an attacker editing the log does.
-async function tamper(i, field){
+// recompute the record's stored hash, exactly what an attacker editing the log
+// does. It also does not run verify, so the break stays hidden until you check.
+function tamper(i, field){
   const rec = chain[i];
   if (!rec._alt){
     if (field === "cost") rec.cost = (rec._origCost || 0) + 5000;
     else rec.action = rec._origAction === "refund-card" ? "charge-card" : "refund-card";
     rec._alt = true;
+    rec._altField = field;
   } else {
     rec.cost = rec._origCost;
     rec.action = rec._origAction;
     rec._alt = false;
+    rec._altField = null;
   }
-  await render();
+  verifyResult = null;
+  render();
 }
 
 document.getElementById("ledger").addEventListener("click", (e) => {
@@ -305,15 +333,17 @@ document.getElementById("ledger").addEventListener("click", (e) => {
   if (!t) return;
   tamper(+t.dataset.i, t.dataset.tamper);
 });
+document.getElementById("verify").addEventListener("click", runVerify);
 document.getElementById("record").addEventListener("click", async () => {
   const tpl = POOL[poolIx % POOL.length]; poolIx++;
   await addRecord(tpl);
-  await render();
+  verifyResult = null;
+  render();
 });
 document.getElementById("reset").addEventListener("click", async () => {
   chain = []; seq = 0; poolIx = 0;
   for (const t of SEED) await addRecord(t);
-  await render();
+  await runVerify();
 });
 document.getElementById("theme").addEventListener("click", () => {
   const cur = document.documentElement.getAttribute("data-theme");
@@ -321,5 +351,5 @@ document.getElementById("theme").addEventListener("click", () => {
   document.documentElement.setAttribute("data-theme", next);
 });
 
-(async () => { for (const t of SEED) await addRecord(t); await render(); })();
+(async () => { for (const t of SEED) await addRecord(t); await runVerify(); })();
 </script>
