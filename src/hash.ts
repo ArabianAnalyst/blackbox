@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { ActionRecord } from "./types";
+import type { ActionRecord, VerifyResult } from "./types";
 
 export const GENESIS = "0".repeat(64);
 
@@ -20,4 +20,22 @@ export function hashRecord(rec: Omit<ActionRecord, "hash">): string {
     prevHash: rec.prevHash,
   });
   return createHash("sha256").update(payload).digest("hex");
+}
+
+// Walk the chain: each record's stored hash must match a recompute of its
+// contents, and each prevHash must equal the previous record's hash. Any
+// edit, insertion, deletion, or reorder breaks one of those and is reported.
+export function verifyChain(records: ActionRecord[]): VerifyResult {
+  let prev = GENESIS;
+  for (const rec of records) {
+    if (rec.prevHash !== prev) {
+      return { ok: false, brokenAt: rec.id, reason: "prevHash does not match previous record" };
+    }
+    const { hash, ...rest } = rec;
+    if (hashRecord(rest) !== hash) {
+      return { ok: false, brokenAt: rec.id, reason: "record hash does not match its contents" };
+    }
+    prev = rec.hash;
+  }
+  return { ok: true };
 }

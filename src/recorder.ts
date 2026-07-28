@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { hashRecord } from "./hash";
-import type { ActionRecord, RecordInput, Store, Query } from "./types";
+import { hashRecord, verifyChain } from "./hash";
+import type { ActionRecord, RecordInput, Store, Query, VerifyResult } from "./types";
 
 export interface RecorderOptions {
   store: Store;
@@ -13,6 +13,7 @@ export interface Recorder {
   wrap<T>(action: string, input: unknown, fn: () => T | Promise<T>): Promise<T>;
   query(q: Query): ActionRecord[];
   all(): ActionRecord[];
+  verify(): VerifyResult;
 }
 
 export function createRecorder(opts: RecorderOptions): Recorder {
@@ -62,5 +63,9 @@ export function createRecorder(opts: RecorderOptions): Recorder {
     return store.all();
   }
 
-  return { record, wrap, query, all };
+  function verify(): VerifyResult {
+    return verifyChain(store.all());
+  }
+
+  return { record, wrap, query, all, verify };
 }
