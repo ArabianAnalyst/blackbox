@@ -15,7 +15,7 @@
   "scripts": {
     "build": "tsc",
     "demo": "tsx examples/demo.ts",
-    "test": "tsx test/hash.test.ts"
+    "test": "tsx test/hash.test.ts && tsx test/store.test.ts && tsx test/recorder.test.ts && tsx test/verify.test.ts"
   },
   "keywords": ["ai", "agents", "llm", "observability", "audit", "governance", "tamper-evident", "agentic"],
   "license": "MIT",
