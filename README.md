@@ -4,6 +4,8 @@ A tamper-evident flight recorder for AI agents. Record every action an agent tak
 
 Purse enforces what an agent may spend. blackbox records what any agent action did.
 
+**[Try the interactive demo](https://arabiananalyst.github.io/blackbox/demo/).** Click any value, tamper with it, and watch `verify()` break the chain at that exact record. Real SHA-256, running in your browser, the same logic as the package. The source lives in [`demo/`](demo/index.html), and the same demo is the hero of [olurabian.com/blackbox](https://www.olurabian.com/blackbox).
+
 ## Why not just log?
 
 Two things a plain log cannot do:
@@ -45,7 +47,7 @@ verify() on the untouched log: { ok: true }
 verify() after editing a record: { ok: false, brokenAt: 'id-1', reason: 'record hash does not match its contents' }
 ```
 
-Run the demo: `npm run demo`.
+Two ways to see it. The browser demo at [arabiananalyst.github.io/blackbox/demo](https://arabiananalyst.github.io/blackbox/demo/) lets you tamper by clicking any value. The CLI version runs with `npm run demo`.
 
 ## API
 
