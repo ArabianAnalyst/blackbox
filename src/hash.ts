@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import type { ActionRecord, VerifyResult } from "./types";
+import type { ActionRecord, VerifyResult } from "./types.js";
 
 export const GENESIS = "0".repeat(64);
 

@@ -1,6 +1,6 @@
 import { appendFileSync, readFileSync, existsSync } from "node:fs";
-import { GENESIS } from "./hash";
-import type { ActionRecord, Store } from "./types";
+import { GENESIS } from "./hash.js";
+import type { ActionRecord, Store } from "./types.js";
 
 // In-memory append-only store. lastHash() returns the tip of the chain.
 export class MemoryStore implements Store {

@@ -55,6 +55,14 @@ Two ways to see it. The browser demo at [arabiananalyst.github.io/blackbox/demo]
 - `MemoryStore` / `JsonlStore(path)` — pluggable, or implement the `Store` interface yourself
 - `verifyChain(records)` — verify a raw array of records
 
+## The Deadlatch stack
+
+blackbox is the **prove** in Deadlatch, the open runtime governance stack for AI agents. Adopt one, or run all three.
+
+- **[Purse](https://github.com/ArabianAnalyst/purse)**, enforce. Stop the action off-policy, at the moment it happens.
+- **blackbox**, prove. A tamper-evident record of what happened, verifiable outside the tool.
+- **[Tripwire](https://github.com/ArabianAnalyst/tripwire)**, watch. Catch the silent wrong action before a customer does.
+
 ## License
 
 MIT

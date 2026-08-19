@@ -1,6 +1,6 @@
 {
   "name": "@olurabian/blackbox",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A tamper-evident flight recorder for AI agents. Records every action to a hash-chained log you can prove was not altered. Zero dependencies.",
   "type": "module",
   "main": "./dist/index.js",
@@ -11,18 +11,38 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "demo": "tsx examples/demo.ts",
     "test": "tsx test/hash.test.ts && tsx test/store.test.ts && tsx test/recorder.test.ts && tsx test/verify.test.ts"
   },
-  "keywords": ["ai", "agents", "llm", "observability", "audit", "governance", "tamper-evident", "agentic"],
+  "keywords": [
+    "ai",
+    "agents",
+    "llm",
+    "observability",
+    "audit",
+    "governance",
+    "tamper-evident",
+    "agentic"
+  ],
   "license": "MIT",
-  "publishConfig": { "access": "public" },
+  "publishConfig": {
+    "access": "public"
+  },
   "author": "Oluwasegun Araba (ARABA)",
-  "repository": { "type": "git", "url": "https://github.com/ArabianAnalyst/blackbox" },
-  "engines": { "node": ">=18" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArabianAnalyst/blackbox"
+  },
+  "engines": {
+    "node": ">=18"
+  },
   "devDependencies": {
     "tsx": "^4.7.0",
     "typescript": "^5.4.0"

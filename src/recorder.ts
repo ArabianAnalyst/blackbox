@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { hashRecord, verifyChain } from "./hash";
-import type { ActionRecord, RecordInput, Store, Query, VerifyResult } from "./types";
+import { hashRecord, verifyChain } from "./hash.js";
+import type { ActionRecord, RecordInput, Store, Query, VerifyResult } from "./types.js";
 
 export interface RecorderOptions {
   store: Store;
