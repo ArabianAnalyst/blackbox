@@ -1,4 +1,15 @@
-# blackbox
+<div align="center">
+  <img src="assets/logo.png" width="118" alt="blackbox" />
+  <h1>blackbox</h1>
+  <p><b>A tamper-evident record of what your AI agent actually did.</b></p>
+  <p>
+    <a href="https://www.npmjs.com/package/@olurabian/blackbox"><img src="https://img.shields.io/npm/v/@olurabian/blackbox?style=for-the-badge&label=npm&color=F2B33D" alt="npm version" /></a>
+    <img src="https://img.shields.io/badge/dependencies-zero-F2B33D?style=for-the-badge" alt="zero dependencies" />
+    <img src="https://img.shields.io/npm/l/@olurabian/blackbox?style=for-the-badge&label=license&color=2E3742" alt="MIT license" />
+    <img src="https://img.shields.io/badge/types-included-1B34E0?style=for-the-badge" alt="TypeScript types included" />
+  </p>
+  <p><sub>Part of <a href="https://deadlatch.dev"><b>Deadlatch</b></a> &nbsp;·&nbsp; enforce &nbsp;·&nbsp; <b>prove</b> &nbsp;·&nbsp; watch</sub></p>
+</div>
 
 A tamper-evident flight recorder for AI agents. Record every action an agent takes to a hash-chained log you can prove was not altered afterward. Zero dependencies.
 
