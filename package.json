@@ -50,7 +50,7 @@
     "@lavamoat/allow-scripts": "^5.1.0"
   },
   "dependencies": {
-    "@olurabian/receipt": "file:../receipt"
+    "@olurabian/receipt": "^0.1.0"
   },
   "lavamoat": {
     "allowScripts": {
