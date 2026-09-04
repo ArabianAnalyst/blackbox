@@ -10,7 +10,7 @@ function check(name: string, cond: boolean) {
 }
 
 const rec = (id: string, prevHash: string): ActionRecord => ({
-  id, ts: "2026-07-28T00:00:00.000Z", action: "a", outcome: "ok", prevHash, hash: "h" + id,
+  id, ts: "2026-07-28T00:00:00.000Z", kind: "action", payload: { action: "a", outcome: "ok" }, prevHash, hash: "h" + id,
 });
 
 const m = new MemoryStore();

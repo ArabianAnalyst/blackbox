@@ -44,7 +44,7 @@ const out = await rec.wrap("charge-card", { amount: 20 }, () => chargeCard(20));
 rec.record({ action: "send-email", outcome: "ok", latencyMs: 120, cost: 0.002 });
 
 // prove the log was not touched
-rec.verify();   // { ok: true }  or  { ok: false, brokenAt, reason }
+rec.verify();   // { ok: true }  or  { ok: false, brokenAt, id, reason }
 
 rec.query({ outcome: "error" });
 ```
@@ -55,10 +55,14 @@ rec.query({ outcome: "error" });
 
 ```
 verify() on the untouched log: { ok: true }
-verify() after editing a record: { ok: false, brokenAt: 'id-1', reason: 'record hash does not match its contents' }
+verify() after editing a record: { ok: false, brokenAt: 0, id: 'id-1', reason: 'hash mismatch (a record was altered)' }
 ```
 
 Two ways to see it. The browser demo at [arabiananalyst.github.io/blackbox/demo](https://arabiananalyst.github.io/blackbox/demo/) lets you tamper by clicking any value. The CLI version runs with `npm run demo`.
+
+## The receipt
+
+Every record is a [Deadlatch receipt](https://github.com/ArabianAnalyst/receipt), `{ id, ts, kind: "action", payload, prevHash, hash }`. The action fields (`action`, `outcome`, `latencyMs`, `cost`, `error`, `meta`) live under `payload`. `hash` is SHA-256 over `JSON.stringify({ id, ts, kind, payload, prevHash })`, so anyone can verify a blackbox log with `npm i @olurabian/receipt` and nothing from you.
 
 ## API
 

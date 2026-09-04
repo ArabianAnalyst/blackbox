@@ -22,10 +22,10 @@ check("clean chain verifies via recorder", rec.verify().ok === true);
 
 // tamper a field on a record (all() shares element references with the store)
 const recs = rec.all();
-recs[1]!.cost = 999;
+recs[1]!.payload.cost = 999;
 check("edited field is detected", rec.verify().ok === false);
-check("edited field reports the record id", rec.verify().brokenAt === "id-2");
-recs[1]!.cost = 3; // restore
+check("edited field reports the index and id", rec.verify().brokenAt === 1 && rec.verify().id === "id-2");
+recs[1]!.payload.cost = 3; // restore
 check("restored chain verifies again", rec.verify().ok === true);
 
 // verifyChain directly on arrays

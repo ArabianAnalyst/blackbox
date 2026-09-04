@@ -29,8 +29,8 @@ async function main() {
   const recW = createRecorder({ store: new MemoryStore(), ...fixed() });
   const out = await recW.wrap("work", { x: 1 }, async () => 42);
   check("wrap returns fn result", out === 42);
-  check("wrap recorded ok outcome", recW.all()[0]!.outcome === "ok");
-  check("wrap captured latencyMs", typeof recW.all()[0]!.latencyMs === "number");
+  check("wrap recorded ok outcome", recW.all()[0]!.payload.outcome === "ok");
+  check("wrap captured latencyMs", typeof recW.all()[0]!.payload.latencyMs === "number");
 
   // wrap error: records error and re-throws
   seq = 0;
@@ -39,8 +39,8 @@ async function main() {
   try { await recE.wrap("boom", undefined, async () => { throw new Error("nope"); }); }
   catch { threw = true; }
   check("wrap re-throws the error", threw === true);
-  check("wrap recorded error outcome", recE.all()[0]!.outcome === "error");
-  check("wrap recorded error message", recE.all()[0]!.error === "nope");
+  check("wrap recorded error outcome", recE.all()[0]!.payload.outcome === "error");
+  check("wrap recorded error message", recE.all()[0]!.payload.error === "nope");
 
   // query filters
   seq = 0;

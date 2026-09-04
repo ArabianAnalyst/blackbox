@@ -1,5 +1,4 @@
-import { randomUUID } from "node:crypto";
-import { hashRecord, verifyChain } from "./hash.js";
+import { makeReceipt, verifyChain } from "@olurabian/receipt";
 import type { ActionRecord, RecordInput, Store, Query, VerifyResult } from "./types.js";
 
 export interface RecorderOptions {
@@ -17,26 +16,10 @@ export interface Recorder {
 }
 
 export function createRecorder(opts: RecorderOptions): Recorder {
-  const { store } = opts;
-  const now = opts.now ?? (() => new Date().toISOString());
-  const newId = opts.newId ?? (() => randomUUID());
+  const { store, now, newId } = opts;
 
   function record(entry: RecordInput): ActionRecord {
-    const base: Omit<ActionRecord, "hash"> = {
-      id: newId(),
-      ts: now(),
-      action: entry.action,
-      input: entry.input,
-      outcome: entry.outcome,
-      error: entry.error,
-      latencyMs: entry.latencyMs,
-      cost: entry.cost,
-      meta: entry.meta,
-      prevHash: store.lastHash(),
-    };
-    const rec: ActionRecord = { ...base, hash: hashRecord(base) };
-    store.append(rec);
-    return rec;
+    return makeReceipt(store, { kind: "action", payload: entry }, { now, newId });
   }
 
   async function wrap<T>(action: string, input: unknown, fn: () => T | Promise<T>): Promise<T> {
@@ -54,8 +37,8 @@ export function createRecorder(opts: RecorderOptions): Recorder {
 
   function query(q: Query): ActionRecord[] {
     return store.all().filter((r) =>
-      (q.action === undefined || r.action === q.action) &&
-      (q.outcome === undefined || r.outcome === q.outcome)
+      (q.action === undefined || r.payload.action === q.action) &&
+      (q.outcome === undefined || r.payload.outcome === q.outcome)
     );
   }
 

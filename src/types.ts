@@ -1,11 +1,10 @@
+import type { Receipt, Store as ReceiptStore, VerifyResult as ReceiptVerifyResult } from "@olurabian/receipt";
+
 // The unit of spend/outcome for a single agent action.
 export type Outcome = "ok" | "error" | "blocked";
 
-// A committed record. `prevHash` links to the previous record; `hash` covers
-// every other field. Together they form a tamper-evident chain.
-export interface ActionRecord {
-  id: string;
-  ts: string;
+/** The payload of a blackbox action receipt, the `payload` of an @olurabian/receipt envelope. */
+export interface ActionPayload {
   action: string;
   input?: unknown;
   outcome: Outcome;
@@ -13,33 +12,22 @@ export interface ActionRecord {
   latencyMs?: number;
   cost?: number;
   meta?: Record<string, unknown>;
-  prevHash: string;
-  hash: string;
 }
+
+/**
+ * A committed record: a Deadlatch receipt of kind "action". The action fields
+ * live under `payload`; `prevHash` and `hash` are on the envelope and together
+ * form a tamper-evident chain.
+ */
+export type ActionRecord = Receipt<ActionPayload>;
 
 // The caller-owned fields for record(). The recorder assigns id/ts/prevHash/hash.
-export interface RecordInput {
-  action: string;
-  input?: unknown;
-  outcome: Outcome;
-  error?: string;
-  latencyMs?: number;
-  cost?: number;
-  meta?: Record<string, unknown>;
-}
+export type RecordInput = ActionPayload;
 
 // A pluggable append-only store.
-export interface Store {
-  lastHash(): string;
-  append(rec: ActionRecord): void;
-  all(): ActionRecord[];
-}
+export type Store = ReceiptStore<ActionPayload>;
 
-export interface VerifyResult {
-  ok: boolean;
-  brokenAt?: string;
-  reason?: string;
-}
+export type VerifyResult = ReceiptVerifyResult;
 
 export interface Query {
   action?: string;

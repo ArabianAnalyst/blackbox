@@ -1,7 +1,7 @@
 {
   "name": "@olurabian/blackbox",
-  "version": "0.1.1",
-  "description": "A tamper-evident flight recorder for AI agents. Records every action to a hash-chained log you can prove was not altered. Zero dependencies.",
+  "version": "0.2.0",
+  "description": "A tamper-evident flight recorder for AI agents. Records every action to a hash-chained log you can prove was not altered. Zero third-party dependencies.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -46,6 +46,15 @@
   "devDependencies": {
     "@types/node": "^20.19.43",
     "tsx": "^4.7.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "@lavamoat/allow-scripts": "^5.1.0"
+  },
+  "dependencies": {
+    "@olurabian/receipt": "file:../receipt"
+  },
+  "lavamoat": {
+    "allowScripts": {
+      "tsx>esbuild#0.28.1": true
+    }
   }
 }

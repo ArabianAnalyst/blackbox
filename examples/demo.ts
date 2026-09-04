@@ -17,13 +17,13 @@ async function main() {
 
   console.log("Recorded actions:");
   for (const r of rec.all()) {
-    console.log(`  ${r.action}  ${r.outcome}${r.error ? " (" + r.error + ")" : ""}  ${r.latencyMs}ms`);
+    console.log(`  ${r.payload.action}  ${r.payload.outcome}${r.payload.error ? " (" + r.payload.error + ")" : ""}  ${r.payload.latencyMs}ms`);
   }
 
   console.log("\nverify() on the untouched log:", rec.verify());
 
   // Tamper with a record, then verify again.
-  rec.all()[0]!.action = "refund-card";
+  rec.all()[0]!.payload.action = "refund-card";
   console.log("verify() after editing a record:", rec.verify());
 }
 main();
