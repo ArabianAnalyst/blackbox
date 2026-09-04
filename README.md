@@ -62,7 +62,7 @@ Two ways to see it. The browser demo at [arabiananalyst.github.io/blackbox/demo]
 
 ## Postgres
 
-The recorder takes any receipt store. For Postgres, open a `PostgresStore` from `@olurabian/receipt` and pass it in. Call `store.flush()` before the process exits.
+The recorder takes any receipt store. This needs `@olurabian/receipt` 0.2 or newer installed alongside blackbox. For Postgres, open a `PostgresStore` from `@olurabian/receipt` and pass it in. Call `store.flush()` before the process exits.
 
 ```js
 import pg from "pg";
