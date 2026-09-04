@@ -60,6 +60,21 @@ verify() after editing a record: { ok: false, brokenAt: 0, id: 'id-1', reason: '
 
 Two ways to see it. The browser demo at [arabiananalyst.github.io/blackbox/demo](https://arabiananalyst.github.io/blackbox/demo/) lets you tamper by clicking any value. The CLI version runs with `npm run demo`.
 
+## Postgres
+
+The recorder takes any receipt store. For Postgres, open a `PostgresStore` from `@olurabian/receipt` and pass it in. Call `store.flush()` before the process exits.
+
+```js
+import pg from "pg";
+import { PostgresStore } from "@olurabian/receipt";
+import { createRecorder } from "@olurabian/blackbox";
+
+const store = await PostgresStore.open(new pg.Pool({ connectionString: process.env.DATABASE_URL }), { stream: "blackbox" });
+const rec = createRecorder({ store });
+rec.record({ action: "ping", outcome: "ok" });
+await store.flush();
+```
+
 ## The receipt
 
 Every record is a [Deadlatch receipt](https://github.com/ArabianAnalyst/receipt), `{ id, ts, kind: "action", payload, prevHash, hash }`. The action fields (`action`, `outcome`, `latencyMs`, `cost`, `error`, `meta`) live under `payload`. `hash` is SHA-256 over `JSON.stringify({ id, ts, kind, payload, prevHash })`, so anyone can verify a blackbox log with `npm i @olurabian/receipt` and nothing from you.
