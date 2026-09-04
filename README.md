@@ -21,7 +21,7 @@ Purse enforces what an agent may spend. blackbox records what any agent action d
 
 Two things a plain log cannot do:
 
-1. **Prove integrity.** blackbox hash-chains every record. Edit, insert, delete or reorder anything and `verify()` tells you the exact record where the chain broke.
+1. **Prove integrity.** blackbox hash-chains every record. Edit, insert, delete or reorder anything and `verify()` tells you the exact record where the chain broke. Truncation at the tail is the one edit a chain cannot detect on its own. That is what an outside witness anchoring the chain head is for.
 2. **Catch silent failures.** blackbox records every attempt with its outcome, latency and cost, not just the errors. The ok-but-wrong result and the slow cost creep leave a trace instead of vanishing.
 
 ## Install
