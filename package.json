@@ -44,10 +44,10 @@
     "node": ">=18"
   },
   "devDependencies": {
+    "@lavamoat/allow-scripts": "^5.1.0",
     "@types/node": "^20.19.43",
     "tsx": "^4.7.0",
-    "typescript": "^5.4.0",
-    "@lavamoat/allow-scripts": "^5.1.0"
+    "typescript": "^5.4.0"
   },
   "dependencies": {
     "@olurabian/receipt": "^0.1.0"
